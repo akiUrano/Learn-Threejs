@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Three.js app</title>
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <script src="https://unpkg.com/three@0.137.4/build/three.min.js"></script>
+    <script>
+        // 以下の3つが必要（3D空間、カメラ、レンダラー）
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight);
+        const renderer = new THREE.WebGLRenderer();
+
+        // 球体を作成（形状・色）
+        const geometry = new THREE.SphereGeometry(300, 30, 30);
+        // 画像を読み込む
+        const loader = new THREE.TextureLoader();
+        const texture = loader.load('Earthmap.jpg');
+        // マテリアルにテクスチャーを設定
+        const material = new THREE.MeshStandardMaterial({
+            map: texture
+        });
+        const cube = new THREE.Mesh(geometry, material);
+        // 追加したものが座標(0, 0, 0)に追加される
+        scene.add(cube);
+
+        // 球体を作成（形状・色）
+        const geometry2 = new THREE.SphereGeometry(50, 10, 10);
+        // マテリアルにテクスチャーを設定
+        const material2 = new THREE.MeshStandardMaterial({ color: 0x0000ff });
+        const cube2 = new THREE.Mesh(geometry2, material2);
+        cube2.position.x=700
+        scene.add(cube2);
+
+        // 形状データを作成
+        const SIZE = 3000;
+        // 配置する個数
+        const LENGTH = 1000;
+        // 頂点情報を格納する配列
+        const vertices = [];
+        for (let i = 0; i < LENGTH; i++) {
+            const x = SIZE * (Math.random() - 0.5);
+            const y = SIZE * (Math.random() - 0.5);
+            const z = SIZE * (Math.random() - 0.5);
+            vertices.push(x, y, z);
+        }
+
+        // 形状データを作成
+        const geometry3 = new THREE.BufferGeometry();
+        geometry3.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+
+        // マテリアルを作成
+        const material3 = new THREE.PointsMaterial({
+            // 一つ一つのサイズ
+            size: 5,
+            // 色
+            color: 0xffffff,
+        });
+
+        // 物体を作成
+        const mesh = new THREE.Points(geometry3, material3);
+        scene.add(mesh); // シーンは任意の THREE.Scene インスタンス
+        // カメラの位置の設定（正面）
+        camera.position.set(0, 0, 1200);
+
+        //光
+        const light = new THREE.DirectionalLight(0xffffff);
+        // 光の強さ
+        light.intensity = 2;
+        // ライトの位置を変更(右斜め上あたり)
+        light.position.set(1, 1, 1);
+        // シーンに追加
+        scene.add(light);
+
+        // 画面に描画するサイズ設定
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        let rot =0;
+        //画面に描画
+        function animate() {
+            requestAnimationFrame(animate);
+            rot += 0.5; 
+            // ラジアンに変換する
+            const radian = rot * Math.PI / 180;
+            // 角度に応じてカメラの位置を設定
+            camera.position.x = 1000 * Math.sin(radian);
+            camera.position.z = 1000 * Math.cos(radian);
+            // 原点方向を見つめる
+            camera.lookAt(new THREE.Vector3(0, 0, 0));
+            // cube.rotation.x += 0.01;
+            cube.rotation.y += 0.03;
+            // cube2.position.y += 1;
+            // cube.rotation.z += 0.01;
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+
+</html>
